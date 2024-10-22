@@ -1,0 +1,117 @@
+[
+  {
+      "token": "PROGRAMA",
+      "lexema": "programa",
+      "palabraReservada": true
+  },
+  {
+      "token": "INT",
+      "lexema": "int",
+      "palabraReservada": true
+  },
+  {
+      "token": "FLOAT",
+      "lexema": "float",
+      "palabraReservada": true
+  },
+  {
+      "token": "CHAR",
+      "lexema": "char",
+      "palabraReservada": true
+  },
+  {
+      "token": "LEER",
+      "lexema": "leer",
+      "palabraReservada": true
+  },
+  {
+      "token": "IMPRIMIR",
+      "lexema": "imprimir",
+      "palabraReservada": true
+  },
+  {
+      "token": "MIENTRAS",
+      "lexema": "mientras",
+      "palabraReservada": true
+  },
+  {
+      "token": "SI",
+      "lexema": "si",
+      "palabraReservada": true
+  },
+  {
+      "token": "SINO",
+      "lexema": "sino",
+      "palabraReservada": true
+  },
+  {
+      "token": "PARA",
+      "lexema": "para",
+      "palabraReservada": true
+  },
+  {
+      "token": "HACER",
+      "lexema": "hacer",
+      "palabraReservada": true
+  },
+  {
+      "token": "TERMINAR",
+      "lexema": "terminar",
+      "palabraReservada": true
+  },
+  {
+      "token": "SUMA",
+      "lexema": "+",
+      "palabraReservada": false
+  },
+  {
+      "token": "RESTA",
+      "lexema": "-",
+      "palabraReservada": false
+  },
+  {
+      "token": "MULTIPLICACION",
+      "lexema": "*",
+      "palabraReservada": false
+  },
+  {
+      "token": "DIVISION",
+      "lexema": "/",
+      "palabraReservada": false
+  },
+  {
+      "token": "PARENTESIS_A",
+      "lexema": "(",
+      "palabraReservada": false
+  },
+  {
+      "token": "PARENTESIS_C",
+      "lexema": ")",
+      "palabraReservada": false
+  },
+  {
+      "token": "LLAVE_A",
+      "lexema": "{",
+      "palabraReservada": false
+  },
+  {
+      "token": "LLAVE_C",
+      "lexema": "}",
+      "palabraReservada": false
+  },
+  {
+      "token": "PUNTO_COMA",
+      "lexema": ";",
+      "palabraReservada": false
+  },
+  {
+      "token": "COMA",
+      "lexema": ",",
+      "palabraReservada": false
+  },
+  {
+      "token": "IGUAL",
+      "lexema": "=",
+      "palabraReservada": false
+  }
+]

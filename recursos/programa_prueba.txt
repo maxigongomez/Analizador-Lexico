@@ -1,0 +1,7 @@
+programa test() {
+    int x, y;
+    leer x;
+    leer y;
+    imprimir("El valor es: ", x + y);
+    terminar;
+}
