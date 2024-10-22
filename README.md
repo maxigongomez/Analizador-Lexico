@@ -1,6 +1,11 @@
 # Analizador Léxico
 
-Este proyecto implementa un analizador léxico simple en Python.
+Analizador léxico con interfaz gráfica que identifica y clasifica componentes del lenguaje (tokens, lexemas, palabras reservadas). Trabajo práctico para la materia [Nombre de la Materia].
+
+## Requisitos
+
+- Python 3.7+
+- tkinter (incluido en Python)
 
 ## Estructura del proyecto
 
@@ -15,11 +20,15 @@ Este proyecto implementa un analizador léxico simple en Python.
 ## Cómo ejecutar
 
 1. Asegúrate de tener Python 3.7 o superior instalado.
-2. Instala las dependencias: `pip install -r requirements.txt`
-3. Ejecuta el programa: `python main.py`
+2. Ejecuta el programa: `python main.py`
 
 ## Funcionalidades
 
-- Carga de archivos de texto para análisis
-- Análisis léxico de código fuente
-- Visualización de la tabla de símbolos
+- Análisis léxico de código
+- Editor de código integrado
+- Visualización de tabla de símbolos
+- Carga/guardado de archivos
+
+## Materia
+
+Compilaodres y Trasladores
