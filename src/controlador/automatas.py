@@ -3,7 +3,6 @@ class Automatas:
     def isIdentificador(cadena: str) -> bool:
         if not cadena:
             return False
-        # Un identificador debe comenzar con letra y puede contener letras, números o _
         if not cadena[0].isalpha():
             return False
         return all(c.isalnum() or c == '_' for c in cadena)
@@ -11,15 +10,30 @@ class Automatas:
     @staticmethod
     def isNumero(cadena: str) -> bool:
         try:
-            int(cadena)
-            return True
-        except ValueError:
+            if not cadena:
+                return False
+
+            if cadena[0] == '-':
+                if len(cadena) == 1:
+                    return False
+                return cadena[1:].isdigit()
+
+            return cadena.isdigit()
+            
+        except (ValueError, TypeError):
             return False
 
     @staticmethod
     def isReal(cadena: str) -> bool:
         try:
+            if not cadena:
+                return False
+
+            if cadena == '.':
+                return False
+                
             float(cadena)
             return '.' in cadena
+            
         except ValueError:
             return False

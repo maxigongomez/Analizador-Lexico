@@ -103,9 +103,13 @@ class IndexCompilador:
                                  border=0)
         self.text_salida.grid(row=1, column=1, sticky='nsew')
 
-        # Configurar tags para colorear True/False
-        self.text_salida.tag_configure('true', foreground='#50fa7b')  # Verde para True
-        self.text_salida.tag_configure('false', foreground='#ff5555')  # Rojo para False
+        # Configurar tags para diferentes tipos de tokens
+        self.text_salida.tag_configure('palabra_reservada', foreground='#7B42F5')  # Morado
+        self.text_salida.tag_configure('identificador', foreground='#4FC1FF')      # Azul claro
+        self.text_salida.tag_configure('operador', foreground='#FF7B72')          # Rojo suave
+        self.text_salida.tag_configure('delimitador', foreground='#FFA657')       # Naranja
+        self.text_salida.tag_configure('literal', foreground='#9FEF00')          # Verde
+        self.text_salida.tag_configure('error', foreground='#F85149', underline=1) # Rojo con subrayado
 
         # Scrollbars
         for text_widget, col in [(self.text_fuente, 0), (self.text_salida, 1)]:
@@ -117,8 +121,11 @@ class IndexCompilador:
         text_frame.grid_rowconfigure(1, weight=1)
 
     def cargar_archivo(self):
+        """Carga un archivo de texto en el área de código fuente"""
         try:
-            file_path = filedialog.askopenfilename(filetypes=[("Archivos de texto", "*.txt")])
+            file_path = filedialog.askopenfilename(
+                filetypes=[("Archivos de texto", "*.txt"), ("Todos los archivos", "*.*")]
+            )
             if file_path:
                 with open(file_path, 'r', encoding='utf-8') as file:
                     contenido = file.read()
@@ -128,39 +135,56 @@ class IndexCompilador:
             messagebox.showerror("Error", f"No se pudo cargar el archivo: {str(e)}")
 
     def analizar(self):
+        """Analiza el contenido del área de código fuente"""
         contenido = self.text_fuente.get('1.0', tk.END).strip()
         if not contenido:
-            messagebox.showwarning("Advertencia", "El área de texto está vacía.")
+            messagebox.showwarning("Advertencia", "El área de código fuente está vacía.")
             return
 
         try:
-            resultados = self.analizador_lexico.analizar_linea(contenido)
             self.text_salida.delete('1.0', tk.END)
+            resultados = self.analizador_lexico.analizar_linea(contenido)
             
             for token in resultados:
-                # Convertir el token a string para procesarlo
-                token_str = str(token)
+                linea = str(token) + "\n"
                 
-                # Buscar si contiene "True" o "False"
-                if "True" in token_str:
-                    before_true = token_str[:token_str.find("True")]
-                    self.text_salida.insert(tk.END, before_true)
-                    self.text_salida.insert(tk.END, "True", 'true')
-                    self.text_salida.insert(tk.END, "\n")
-                elif "False" in token_str:
-                    before_false = token_str[:token_str.find("False")]
-                    self.text_salida.insert(tk.END, before_false)
-                    self.text_salida.insert(tk.END, "False", 'false')
-                    self.text_salida.insert(tk.END, "\n")
+                # Determinar el color basado en el tipo de token
+                if "ERROR" in token.token:
+                    self.text_salida.insert(tk.END, linea, 'error')
                 else:
-                    self.text_salida.insert(tk.END, f"{token_str}\n")
-                
+                    start_index = self.text_salida.index("end-1c linestart")
+                    self.text_salida.insert(tk.END, linea)
+                    
+                    # Aplicar colores según el tipo de token
+                    if token.palabra_reservada:
+                        self.text_salida.tag_add('palabra_reservada', 
+                                               f"{start_index} linestart", 
+                                               f"{start_index} lineend")
+                    elif token.token == "ID":
+                        self.text_salida.tag_add('identificador', 
+                                               f"{start_index} linestart", 
+                                               f"{start_index} lineend")
+                    elif token.token in ["SUMA", "RESTA", "MULTIPLICACION", "DIVISION", "ASIGNACION"]:
+                        self.text_salida.tag_add('operador', 
+                                               f"{start_index} linestart", 
+                                               f"{start_index} lineend")
+                    elif token.token in ["PARENTESIS_IZQ", "PARENTESIS_DER", "LLAVE_IZQ", "LLAVE_DER", 
+                                       "COMA", "PUNTO_COMA"]:
+                        self.text_salida.tag_add('delimitador', 
+                                               f"{start_index} linestart", 
+                                               f"{start_index} lineend")
+                    elif token.token in ["CADENA", "ENTERO", "REAL"]:
+                        self.text_salida.tag_add('literal', 
+                                               f"{start_index} linestart", 
+                                               f"{start_index} lineend")
+
         except Exception as e:
             messagebox.showerror("Error", f"Error durante el análisis: {str(e)}")
 
     def mostrar_tabla_simbolos(self):
-        """Muestra la ventana de símbolos con los símbolos actuales"""
+        """Muestra la ventana de tabla de símbolos"""
         VentanaSimbolos(self.master, self.analizador_lexico.tabla_simbolos)
 
     def run(self):
+        """Inicia la ejecución de la aplicación"""
         self.master.mainloop()

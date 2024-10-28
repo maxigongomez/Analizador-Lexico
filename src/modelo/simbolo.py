@@ -6,3 +6,10 @@ class Simbolo:
 
     def __str__(self):
         return f"Token: {self.token}, Lexema: {self.lexema}, Reservada: {self.palabra_reservada}"
+
+    def __eq__(self, other):
+        if not isinstance(other, Simbolo):
+            return False
+        return (self.token == other.token and 
+                self.lexema == other.lexema and 
+                self.palabra_reservada == other.palabra_reservada)

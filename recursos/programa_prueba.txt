@@ -1,7 +1,8 @@
-programa test() {
-    int x, y;
-    leer x;
-    leer y;
-    imprimir("El valor es: ", x + y);
+programa sumar() {
+    int a, b, c;
+    leer a;
+    leer b;
+    c = a + b;
+    imprimir("la suma de ", a, " + ", b, " = ", c);
     terminar;
 }
