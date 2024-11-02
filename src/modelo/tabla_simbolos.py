@@ -1,40 +1,63 @@
 import json
+import os
 from .simbolo import Simbolo
 from typing import Dict, List, Optional
 
 class TablaSimbolos:
-    def __init__(self):
+    def __init__(self, ruta_json: str = None):
         self.simbolos: Dict[str, Simbolo] = {}
+        
+        if ruta_json and os.path.exists(ruta_json):
+            self.cargar_desde_archivo(ruta_json)
+        else:
+            self._inicializar_tabla()
 
-    def agregar_simbolo(self, simbolo: Simbolo) -> None:
-        """Agrega un símbolo a la tabla"""
+    def _inicializar_tabla(self):
+        simbolos_iniciales = [
+            ("PALABRA_RESERVADA", "programa", True),
+            ("PALABRA_RESERVADA", "int", True),
+            ("PALABRA_RESERVADA", "float", True),
+            ("PALABRA_RESERVADA", "char", True),
+            ("PALABRA_RESERVADA", "leer", True),
+            ("PALABRA_RESERVADA", "imprimir", True),
+            ("PALABRA_RESERVADA", "terminar", True),
+            ("DELIMITADOR", "(", True),
+            ("DELIMITADOR", ")", True),
+            ("DELIMITADOR", "{", True),
+            ("DELIMITADOR", "}", True),
+            ("SIMBOLO_PUNTUACION", ",", True),
+            ("SIMBOLO_PUNTUACION", ";", True),
+            ("OPERADOR_ARITMETICO", "+", True),
+            ("OPERADOR_ARITMETICO", "-", True),
+            ("OPERADOR_ARITMETICO", "*", True),
+            ("OPERADOR_ARITMETICO", "/", True),
+            ("OPERADOR_ASIGNACION", "=", True),
+            ("DELIMITADOR", "\"", True),
+            ("DELIMITADOR", "'", True)
+        ]
+        
+        for token, lexema, es_reservada in simbolos_iniciales:
+            self.agregar_simbolo(Simbolo(token, lexema, es_reservada))
+
+    def cargar_desde_archivo(self, ruta_archivo: str):
+        try:
+            with open(ruta_archivo, 'r', encoding='utf-8') as f:
+                datos = json.load(f)
+                self.simbolos.clear()
+                for simbolo in datos['simbolos']:
+                    self.agregar_simbolo(Simbolo(
+                        simbolo['token'],
+                        simbolo['lexema'],
+                        simbolo['palabraReservada']
+                    ))
+        except Exception as e:
+            raise Exception(f"Error al cargar tabla de símbolos: {str(e)}")
+
+    def agregar_simbolo(self, simbolo):
         self.simbolos[simbolo.lexema] = simbolo
 
-    def buscar_simbolo(self, lexema: str) -> Optional[Simbolo]:
-        """Busca un símbolo por su lexema"""
+    def buscar_simbolo(self, lexema):
         return self.simbolos.get(lexema)
 
-    def obtener_todos_simbolos(self) -> List[Simbolo]:
-        """Retorna una lista con todos los símbolos"""
+    def obtener_todos_simbolos(self):
         return list(self.simbolos.values())
-
-    def cargar_simbolos_iniciales(self, ruta_archivo: str) -> None:
-        """Carga los símbolos iniciales desde un archivo JSON"""
-        try:
-            with open(ruta_archivo, 'r', encoding='utf-8') as archivo:
-                datos = json.load(archivo)
-                for item in datos['simbolos']:
-                    simbolo = Simbolo(
-                        token=item['token'],
-                        lexema=item['lexema'],
-                        palabra_reservada=item['palabraReservada']
-                    )
-                    self.agregar_simbolo(simbolo)
-        except FileNotFoundError:
-            raise Exception(f"No se encontró el archivo de símbolos: {ruta_archivo}")
-        except json.JSONDecodeError:
-            raise Exception("Error al decodificar el archivo JSON de símbolos")
-        except KeyError as e:
-            raise Exception(f"Formato inválido en el archivo de símbolos: {str(e)}")
-        except Exception as e:
-            raise Exception(f"Error inesperado al cargar los símbolos: {str(e)}")
