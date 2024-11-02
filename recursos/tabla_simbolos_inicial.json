@@ -94,6 +94,11 @@
         "token": "COMILLA_DOBLE",
         "lexema": "\"",
         "palabraReservada": true
+      },
+      {
+        "token": "COMILLA_SIMPLE",
+        "lexema": "'",
+        "palabraReservada": true
       }
     ]
   }

@@ -1,0 +1,64 @@
+Línea 1:
+  - PALABRA_RESERVADA → programa        (Palabra Reservada)
+  - ID              → sumar          
+  - DELIMITADOR     → (               (Palabra Reservada)
+  - DELIMITADOR     → )               (Palabra Reservada)
+  - DELIMITADOR     → {               (Palabra Reservada)
+
+Línea 2:
+  - PALABRA_RESERVADA → int             (Palabra Reservada)
+  - ID              → a              
+  - SIMBOLO_PUNTUACION → ,               (Palabra Reservada)
+  - ID              → b              
+  - SIMBOLO_PUNTUACION → ,               (Palabra Reservada)
+  - ID              → c              
+  - SIMBOLO_PUNTUACION → ;               (Palabra Reservada)
+
+Línea 3:
+  - PALABRA_RESERVADA → leer            (Palabra Reservada)
+  - ID              → a              
+  - SIMBOLO_PUNTUACION → ;               (Palabra Reservada)
+
+Línea 4:
+  - PALABRA_RESERVADA → leer            (Palabra Reservada)
+  - ID              → b              
+  - SIMBOLO_PUNTUACION → ;               (Palabra Reservada)
+
+Línea 5:
+  - ID              → c              
+  - OPERADOR_ASIGNACION → =               (Palabra Reservada)
+  - ID              → a              
+  - OPERADOR_ARITMETICO → +               (Palabra Reservada)
+  - ID              → b              
+  - SIMBOLO_PUNTUACION → ;               (Palabra Reservada)
+
+Línea 6:
+  - PALABRA_RESERVADA → imprimir        (Palabra Reservada)
+  - DELIMITADOR     → (               (Palabra Reservada)
+  - DELIMITADOR     → "               (Palabra Reservada)
+  - STRING          → la suma de     
+  - DELIMITADOR     → "               (Palabra Reservada)
+  - SIMBOLO_PUNTUACION → ,               (Palabra Reservada)
+  - ID              → a              
+  - SIMBOLO_PUNTUACION → ,               (Palabra Reservada)
+  - DELIMITADOR     → "               (Palabra Reservada)
+  - STRING          →  +             
+  - DELIMITADOR     → "               (Palabra Reservada)
+  - SIMBOLO_PUNTUACION → ,               (Palabra Reservada)
+  - ID              → b              
+  - SIMBOLO_PUNTUACION → ,               (Palabra Reservada)
+  - DELIMITADOR     → "               (Palabra Reservada)
+  - STRING          →  =             
+  - DELIMITADOR     → "               (Palabra Reservada)
+  - SIMBOLO_PUNTUACION → ,               (Palabra Reservada)
+  - ID              → c              
+  - DELIMITADOR     → )               (Palabra Reservada)
+  - SIMBOLO_PUNTUACION → ;               (Palabra Reservada)
+
+Línea 7:
+  - PALABRA_RESERVADA → terminar        (Palabra Reservada)
+  - SIMBOLO_PUNTUACION → ;               (Palabra Reservada)
+
+Línea 8:
+  - DELIMITADOR     → }               (Palabra Reservada)
+

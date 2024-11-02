@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional, Tuple
 from ..modelo.simbolo import Simbolo
 from ..modelo.tabla_simbolos import TablaSimbolos
 from .automatas import Automatas
@@ -7,159 +7,171 @@ class AnalizadorLexico:
     def __init__(self, tabla_simbolos: TablaSimbolos):
         self.tabla_simbolos = tabla_simbolos
         self.automatas = Automatas()
-        self.buffer = ""
-        self.linea_actual = 1
-        self.columna_actual = 1
-        self.special_chars = "+-*/(){};,="
+        self.tokens = []
+        self.errores = []
+        self.linea_actual = 0
+        self.caracteres_especiales = {
+            'n': '\n',
+            't': '\t',
+            'r': '\r',
+            '"': '"',
+            "'": "'",
+            '\\': '\\'
+        }
 
-    def analizar_linea(self, texto: str) -> List[Simbolo]:
-        tokens = []
-        self.buffer = ""
-        i = 0
+    def analizar_codigo(self, contenido: str) -> List[Simbolo]:
+        self.tokens = []
+        self.errores = []
+        self.linea_actual = 0
         
-        while i < len(texto):
-            char = texto[i]
+        lineas = contenido.split('\n')
+        for linea in lineas:
+            self.analizar_linea(linea.strip())
+            self.linea_actual += 1
             
+        return self.tokens
+
+    def analizar_linea(self, linea: str) -> None:
+        i = 0
+        columna = 1 
+        while i < len(linea):
+            char = linea[i]
+
             if char.isspace():
-                if self.buffer:
-                    tokens.extend(self._analizar_buffer())
                 i += 1
-                self.columna_actual += 1
+                columna += 1
                 continue
 
-            if char == '/' and i + 1 < len(texto) and texto[i + 1] == '/':
-                if self.buffer:
-                    tokens.extend(self._analizar_buffer())
-                comentario = "//"
-                i += 2
-                while i < len(texto):
-                    comentario += texto[i]
-                    i += 1
-                tokens.append(Simbolo("COMENTARIO", comentario, False))
-                continue
-
-            if char == "'":
-                i = self._procesar_caracter(tokens, texto, i)
-                continue
-
-            if char == '-' and i + 1 < len(texto) and texto[i + 1].isdigit():
-                i = self._procesar_numero_negativo(tokens, texto, i)
-                continue
-
-            if char in self.special_chars:
-                if self.buffer:
-                    tokens.extend(self._analizar_buffer())
-                tokens.extend(self._analizar_lexema(char))
-                i += 1
-                self.columna_actual += 1
-                continue
+            if i < len(linea) - 1 and linea[i:i+2] == "//":
+                break
 
             if char == '"':
-                i = self._procesar_cadena(tokens, texto, i)
+                inicio_columna = columna
+                self.tokens.append(Simbolo("DELIMITADOR", '"', True, self.linea_actual, inicio_columna))
+                resultado = self._procesar_contenido_cadena(linea[i+1:])
+                if resultado:
+                    contenido, longitud = resultado
+                    self.tokens.append(Simbolo("STRING", contenido, False, self.linea_actual, columna + 1))
+                    i += longitud + 1
+                    columna += longitud + 1
+                    if i < len(linea) and linea[i] == '"':
+                        self.tokens.append(Simbolo("DELIMITADOR", '"', True, self.linea_actual, columna))
+                        i += 1
+                        columna += 1
+                    else:
+                        self._agregar_error("Error léxico: cadena con comillas dobles no cerrada", columna)
+                else:
+                    self._agregar_error("Error léxico: cadena no válida", columna)
+                    i += 1
+                    columna += 1
                 continue
 
-            self.buffer += char
-            i += 1
-            self.columna_actual += 1
-            
-        if self.buffer:
-            tokens.extend(self._analizar_buffer())
-            
-        return tokens
+            elif char == "'":
+                inicio_columna = columna
+                self.tokens.append(Simbolo("DELIMITADOR", "'", True, self.linea_actual, inicio_columna))
+                
+                if i + 1 < len(linea):
+                    if linea[i+1] == '\\' and i + 2 < len(linea):
+                        char_content = linea[i+1:i+3]
+                        i += 3
+                        columna += 3
+                    else:
+                        char_content = linea[i+1]
+                        i += 2
+                        columna += 2
 
-    def _procesar_caracter(self, tokens: List[Simbolo], texto: str, i: int) -> int:
-        if self.buffer:
-            tokens.extend(self._analizar_buffer())
-        
-        contenido = "'"
-        i += 1
-        
-        if i < len(texto):
-            if texto[i] == '\\':
-                contenido += texto[i]
-                i += 1
-                if i < len(texto):
-                    contenido += texto[i]
+                    self.tokens.append(Simbolo("CHAR", char_content, False, self.linea_actual, inicio_columna + 1))
+                    
+                    if i < len(linea) and linea[i] == "'":
+                        self.tokens.append(Simbolo("COMILLA_SIMPLE", "'", True, self.linea_actual, columna))
+                        i += 1
+                        columna += 1
+                    else:
+                        self._agregar_error("Error léxico: carácter no cerrado", columna)
+                else:
+                    self._agregar_error("Error léxico: carácter no válido", columna)
+                continue
+
+            elif not char.isalnum() and char != '_':
+                token = self._procesar_operador(linea[i:])
+                if token:
+                    token.columna = columna
+                    self.tokens.append(token)
+                    i += len(token.lexema)
+                    columna += len(token.lexema)
+                else:
+                    self._agregar_error(f"Error léxico: carácter no reconocido '{char}'", columna)
                     i += 1
-            else:
-                contenido += texto[i]
-                i += 1
+                    columna += 1
+                continue
 
-            if i < len(texto) and texto[i] == "'":
-                contenido += texto[i]
-                tokens.append(Simbolo("CARACTER", contenido, False))
+            palabra = ""
+            inicio_columna = columna
+            while i < len(linea) and (linea[i].isalnum() or linea[i] == '_'):
+                palabra += linea[i]
                 i += 1
-            else:
-                tokens.append(Simbolo("ERROR", "Caracter no cerrado", False))
-        else:
-            tokens.append(Simbolo("ERROR", "Caracter no cerrado", False))
-        
-        return i
+                columna += 1
 
-    def _procesar_numero_negativo(self, tokens: List[Simbolo], texto: str, i: int) -> int:
-        if self.buffer:
-            tokens.extend(self._analizar_buffer())
-        
-        num_buffer = "-"
-        i += 1
-        
-        while i < len(texto) and (texto[i].isdigit() or texto[i] == '.'):
-            num_buffer += texto[i]
+            if palabra:
+                token = self._analizar_palabra(palabra)
+                token.columna = inicio_columna
+                self.tokens.append(token)
+                continue
+
             i += 1
-            
-        if self.automatas.isReal(num_buffer):
-            tokens.append(Simbolo("REAL", num_buffer, False))
-        elif self.automatas.isNumero(num_buffer):
-            tokens.append(Simbolo("ENTERO", num_buffer, False))
-            
-        return i
+            columna += 1
 
-    def _procesar_cadena(self, tokens: List[Simbolo], texto: str, i: int) -> int:
-        if self.buffer:
-            tokens.extend(self._analizar_buffer())
-            
-        inicio_columna = self.columna_actual
-        contenido = '"'
-        i += 1
-        self.columna_actual += 1
-        
-        while i < len(texto) and texto[i] != '"':
+    def _procesar_contenido_cadena(self, texto: str) -> Optional[Tuple[str, int]]:
+        contenido = ""
+        i = 0
+        while i < len(texto):
+            if texto[i] == '"':
+                return contenido, i
+            elif texto[i] == '\\' and i + 1 < len(texto):
+                if texto[i+1] in self.caracteres_especiales:
+                    contenido += texto[i:i+2]
+                    i += 2
+                    continue
             contenido += texto[i]
             i += 1
-            self.columna_actual += 1
-            
-        if i < len(texto):
-            contenido += texto[i]
-            tokens.append(Simbolo("CADENA", contenido, False))
-            i += 1
-            self.columna_actual += 1
-        else:
-            tokens.append(Simbolo("ERROR", f"Cadena no cerrada en línea {self.linea_actual}, columna {inicio_columna}", False))
-            
-        return i
+        return None
 
-    def _analizar_buffer(self) -> List[Simbolo]:
-        tokens = self._analizar_lexema(self.buffer)
-        self.buffer = ""
-        return tokens
+    def _procesar_operador(self, texto: str) -> Optional[Simbolo]:
+        if len(texto) >= 2:
+            op = texto[:2]
+            simbolo = self.tabla_simbolos.buscar_simbolo(op)
+            if simbolo:
+                return Simbolo(simbolo.token, op, True, self.linea_actual)
 
-    def _analizar_lexema(self, lexema: str) -> List[Simbolo]:
-        simbolo = self.tabla_simbolos.buscar_simbolo(lexema)
+        op = texto[0]
+        simbolo = self.tabla_simbolos.buscar_simbolo(op)
         if simbolo:
-            return [simbolo]
-
-        if self.automatas.isIdentificador(lexema):
-            nuevo_simbolo = Simbolo("ID", lexema, False)
-            self.tabla_simbolos.agregar_simbolo(nuevo_simbolo)
-            return [nuevo_simbolo]
+            return Simbolo(simbolo.token, op, True, self.linea_actual)
         
-        if self.automatas.isReal(lexema):
-            return [Simbolo("REAL", lexema, False)]
-        
-        if self.automatas.isNumero(lexema):
-            return [Simbolo("ENTERO", lexema, False)]
+        return None
 
-        if lexema.isalnum():
-            return [Simbolo("ERROR", f"Token inválido '{lexema}'", False)]
+    def _analizar_palabra(self, palabra: str) -> Simbolo:
+        simbolo = self.tabla_simbolos.buscar_simbolo(palabra)
+        if simbolo:
+            return Simbolo(simbolo.token, palabra, True, self.linea_actual)
 
-        return [Simbolo("ERROR", f"Token no reconocido '{lexema}' en línea {self.linea_actual}, columna {self.columna_actual}", False)]
+        if self.automatas.isReal(palabra):
+            return Simbolo("REAL", palabra, False, self.linea_actual)
+        if self.automatas.isNumero(palabra):
+            return Simbolo("ENTERO", palabra, False, self.linea_actual)
+
+        if self.automatas.isIdentificador(palabra):
+            return Simbolo("ID", palabra, False, self.linea_actual)
+
+        return Simbolo("ERROR", palabra, False, self.linea_actual)
+
+    def _agregar_error(self, mensaje: str, columna: int) -> None:
+        self.errores.append({
+            'linea': self.linea_actual,
+            'columna': columna,
+            'mensaje': mensaje,
+            'tipo': 'LEXICO'
+        })
+
+    def obtener_errores(self) -> List[dict]:
+        return self.errores

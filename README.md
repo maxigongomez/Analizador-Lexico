@@ -2,19 +2,6 @@
 
 Un analizador léxico en Python que identifica y clasifica tokens en código fuente, implementado con una interfaz gráfica moderna.
 
-## Representación Visual de Tokens
-
-El analizador implementa un esquema de colores para identificar diferentes tipos de tokens:
-
-| Tipo de Token | Color | Ejemplo | Descripción |
-|--------------|-------|---------|-------------|
-| Palabras Reservadas | `#7B42F5` | `programa`, `int`, `if` | Palabras clave del lenguaje |
-| Identificadores | `#4FC1FF` | `contador`, `suma`, `x` | Nombres de variables y funciones |
-| Operadores | `#FF7B72` | `+`, `-`, `*`, `=` | Símbolos de operaciones |
-| Delimitadores | `#FFA657` | `{`, `}`, `;`, `,` | Símbolos de estructura |
-| Literales | `#9FEF00` | `"texto"`, `123`, `3.14` | Valores constantes |
-| Errores | `#F85149` | `@`, `$` | Tokens no reconocidos |
-
 ## Características
 
 - Interfaz gráfica moderna con tema oscuro
@@ -30,16 +17,16 @@ El analizador implementa un esquema de colores para identificar diferentes tipos
 analizador_lexico/
 ├── src/
 │   ├── controlador/
-│   │   ├── analizador_lexico.py   # Lógica principal de análisis
-│   │   └── automatas.py           # Autómatas para reconocimiento
+│   │   ├── analizador_lexico.py
+│   │   └── automatas.py        
 │   ├── modelo/
-│   │   ├── simbolo.py             # Representación de tokens
-│   │   └── tabla_simbolos.py      # Gestión de símbolos
+│   │   ├── simbolo.py          
+│   │   └── tabla_simbolos.py   
 │   ├── vista/
-│   │   ├── index_compilador.py    # Interfaz principal
-│   │   └── ventana_simbolos.py    # Tabla de símbolos
+│   │   ├── index_compilador.py 
+│   │   └── ventana_simbolos.py 
 │   └── utils/
-│       └── file_handler.py        # Manejo de archivos
+│       └── file_handler.py        
 ├── tests/
 │   ├── test_analizador.py
 │   ├── test_automatas.py
@@ -89,20 +76,6 @@ python main.py
    - Analizar código
    - Ver tabla de símbolos
    - Examinar tokens identificados
-
-## Pruebas
-
-Ejecutar tests:
-```bash
-# Pruebas básicas
-python -m pytest src/tests/
-
-# Pruebas con cobertura
-python -m pytest --cov=src --cov-report=html
-
-# Pruebas específicas
-python -m pytest src/tests/test_analizador.py -v
-```
 
 ## Ejemplo de Código Soportado
 
